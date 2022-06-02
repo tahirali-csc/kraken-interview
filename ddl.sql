@@ -1,11 +1,11 @@
 
-CREATE TABLE public."customer" (
+CREATE TABLE IF NOT EXISTS public."customer" (
 	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	"name" varchar NOT NULL,
 	CONSTRAINT customer_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.customer_account (
+CREATE TABLE IF NOT EXISTS  public.customer_account (
 	id int4 NOT NULL,
 	customer_id int4 NOT NULL,
 	routing_number varchar NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE public.customer_account (
     add constraint fk_customer_id foreign key (customer_id) references "customer" (id); 
 );
 
-CREATE TABLE public.deposit (
+CREATE TABLE IF NOT EXISTS  public.deposit (
 	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	customer_id int4 NOT NULL,
 	from_account varchar NOT NULL,
