@@ -1,15 +1,6 @@
-import pkg from 'pg';
 import { GetDeposits } from './deposit-servce.mjs'
 import { InitDB } from './db.mjs';
-const { Pool } = pkg;
 
-// const pool = new Pool({
-//     user: 'postgres',
-//     host: 'localhost',
-//     database: 'kraken',
-//     password: 'password',
-//     port: 5432,
-// })
 const conf = {
     host: process.env.DB_HOST ?? 'localhost',
     database: process.env.DB_NAME ?? 'kraken',

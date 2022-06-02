@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS public."customer" (
 CREATE TABLE IF NOT EXISTS  public.customer_account (
 	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	customer_id int4 NOT null references "customer" (id),
-	routing_number varchar NOT NULL,
-	account_number varchar NOT null,
+	routing_number varying(20), NOT NULL,
+	account_number varying(20), NOT null,
 	CONSTRAINT customer_account_un UNIQUE (customer_id, routing_number, account_number)
 );
 
