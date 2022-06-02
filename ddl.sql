@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS public."customer" (
 );
 
 CREATE TABLE IF NOT EXISTS  public.customer_account (
-	id int4 NOT NULL,
-	customer_id int4 NOT NULL,
+	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
+	customer_id int4 NOT null references "customer" (id),
 	routing_number varchar NOT NULL,
-	account_number varchar NOT NULL
-    add constraint fk_customer_id foreign key (customer_id) references "customer" (id); 
+	account_number varchar NOT null,
+	CONSTRAINT customer_account_un UNIQUE (customer_id, routing_number, account_number)
 );
 
 CREATE TABLE IF NOT EXISTS  public.deposit (
