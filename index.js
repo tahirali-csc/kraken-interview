@@ -1,39 +1,40 @@
+import path from 'path'
+
 import { GetDeposits } from './deposit-servce.mjs'
-import { InitDB } from './db.mjs';
+import { GetPool, InitDB } from './db.mjs';
+import { GetAccounts } from './customer-service.mjs';
 
 const conf = {
-    host: process.env.DB_HOST ?? 'localhost',
-    database: process.env.DB_NAME ?? 'kraken',
-    user: process.env.DB_USER ?? 'postgres',
-    password: process.env.DB_PASSWORD ?? 'password',
-    port: process.env.PORT ?? '5432'
+    data: "./data",
+    db: {
+        host: process.env.DB_HOST ?? 'localhost',
+        database: process.env.DB_NAME ?? 'kraken',
+        user: process.env.DB_USER ?? 'postgres',
+        password: process.env.DB_PASSWORD ?? 'password',
+        port: process.env.PORT ?? '5432'
+    }
 }
 
-InitDB(conf)
+await InitDB(conf.db)
 
+let accounts = await GetAccounts(GetPool(conf.db))
+console.log(accounts)
 
+const depostFiles = ["sample1.json", "sample2.json"]
+depostFiles.forEach(async f => {
+    const file = path.join(conf.data, f)
+    let deposits = await GetDeposits(file)
+    deposits.forEach(async d => {
+        let fromKey = d.from.routing_number + "/" + d.from.account_number
+        let toKey = d.to.routing_number + "/" + d.to.account_number
 
-// const config = {
-//     dataFolder: "./data"
-// }
-
-
-
-// async function GetCustomers() {
-//     let res = await pool.query("select c.id, c.name, ca.account_number, ca.routing_number from customer c inner join customer_account ca on c.id = ca.customer_id")
-//     pool.end()
-
-//     let custMap = new Map()
-//     res.rows.forEach(r => {
-//         custMap.set(r.routing_number + "/" + r.account_number, r)
-//     })
-//     return custMap
-//     // console.log(res.rows)
-// }
-
-// let deposits = await GetDeposits(config.dataFolder + "/sample1.json", config.dataFolder + "/sample2.json")
-// // console.log(deposits.length)
-// let customers = await GetCustomers()
+        if (accounts.has(toKey)) {
+            await ProcessDeposit(GetPool(conf.db), d)
+        } else {
+            console.log(fromKey, toKey)
+        }
+    })
+})
 
 
 // // for (let i in deposits) {
@@ -62,10 +63,27 @@ InitDB(conf)
 // ShowResults()
 
 
-// function ProcessTransaction(transaction) {
-//     let routingFrom = transaction.from.routing_number, routFromAcct = transaction.from.account_number
-//     let routingTo = transaction.to.routing_number, routingToAcct = transaction.to.account_number
-// }
+async function ProcessDeposit(pool, transaction) {
+    await pool.query('begin')
+    let res = await pool.query(`insert into "deposit"(
+            from_routing_number,
+            from_account_number, 
+            to_routing_number, 
+            to_account_number,
+            amount,
+            currency
+        ) values($1,$2,$3,$4,$5,$6)`,
+        [
+            transaction.from.routing_number,
+            transaction.from.account_number,
+            transaction.to.routing_number,
+            transaction.to.account_number,
+            parseFloat(transaction.amount.amount),
+            transaction.amount.currency
+        ])
+    await pool.query('commit')        
+
+}
 
 // async function ShowResults() {
 //     let sql = `select c.id, c."name" , sum(d.amount) amount , count(*) count from deposit d 
