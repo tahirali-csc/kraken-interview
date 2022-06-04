@@ -4,12 +4,27 @@ services:
     image: kraken-interview
     build: .
     depends_on:
-      - postgres
+      - db
+    environment:
+      DB_HOST: db
+
+    volumes:
+      - ./data:/data/
     # ports:
 
-  postgres:
-    image: postgres:14
+  db:
+    image: postgres:14.1
+    restart: always
     environment:
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kraken
 
-# volumes:
+    volumes:
+      - ./ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+      - postgres_data:/var/lib/postgresql/data/
+volumes:
+  postgres_data:
+
+    # volumes:
+    #   data:
+    #     external: true      

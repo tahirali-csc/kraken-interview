@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-function GetDeposits(...files){
+export function GetDeposits(...files){
     let deposits = []
     for(let i in files){
         let file = files[i]
@@ -11,4 +11,3 @@ function GetDeposits(...files){
     return deposits
 }
 
-export { GetDeposits }

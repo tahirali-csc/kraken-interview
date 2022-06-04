@@ -1,4 +1,8 @@
 
+-- CREATE database kraken;
+
+-- use kraken;
+
 CREATE TABLE IF NOT EXISTS public."customer" (
 	id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	"name" varchar NOT NULL,

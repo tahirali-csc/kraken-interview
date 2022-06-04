@@ -16,26 +16,28 @@ const customerAccountTable =
         id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
         customer_id int4 NOT null references "customer" (id),
         routing_number varchar NOT NULL,
-        account_number varchar NOT null,
+        account_number varchar NOT NULL,
         CONSTRAINT customer_account_un UNIQUE (routing_number, account_number)
     );`
 
 const depositTable =
     `CREATE TABLE IF NOT EXISTS public.deposit (
         id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
-        from_routing_number varchar NOT null,
-        from_account_number varchar NOT null,
+        from_routing_number varchar NOT NULL,
+        from_account_number varchar NOT NULL,
         to_routing_number varchar null,
-        to_account_number varchar NOT null,
+        to_account_number varchar NOT NULL,
         amount float8 NOT NULL,
-        currency varchar(3) NOT NULL 
+        currency varchar(3) NOT NULL,
+        status varchar(10) NOT NULL,
+        remarks text
     );`
 
 export async function InitDB(conf) {
     const pool = new Pool({
-        host: conf.host,
+        host: 'db',
         user: 'postgres',
-        password: conf.password,
+        password: 'password',
         database: 'postgres',
         port: conf.port
     })
@@ -55,9 +57,11 @@ export async function InitDB(conf) {
 async function setupTables(conf) {
     let pool = GetPool(conf)
     try {
+        await pool.query('begin')
         await pool.query(customerTable)
         await pool.query(customerAccountTable)
         await pool.query(depositTable)
+        await pool.query('commit')
 
         await insertCustomer(pool, 'Jadzia Dax',
             { routing_number: '011000015', account_number: '6622085487' },
@@ -84,21 +88,30 @@ async function setupTables(conf) {
         await insertCustomer(pool, 'Wesley Crusher',
             { routing_number: '011000015', account_number: '6018423486' }
         )
+
     } finally {
         pool.end()
     }
 }
 
 async function insertCustomer(pool, name, ...accounts) {
+    await pool.query('begin')
     await pool.query('insert into customer (name) select $1 where not exists (select name from customer where name = $2)', [name, name])
     const custId = (await pool.query('select id from customer where name=$1', [name])).rows[0].id
+    await pool.query('commit')
 
-    accounts.forEach(async (a) => {
-        let sql = `insert into customer_account(customer_id,routing_number,account_number) select $1,$2::varchar,$3::varchar where not exists(
-            select customer_id,routing_number,account_number from customer_account 
-            where customer_id=$1 and routing_number=$2 and account_number=$3)`
-        await pool.query(sql, [custId, a.routing_number, a.account_number])
-    })
+    for(let acct of accounts){
+        await insertCustomerAccount(pool, acct, custId)
+    }
+}
+
+async function insertCustomerAccount(pool, a, custId){
+    let sql = `insert into customer_account(customer_id,routing_number,account_number) select $1,$2::varchar,$3::varchar where not exists(
+        select customer_id,routing_number,account_number from customer_account 
+        where customer_id=$1 and routing_number=$2 and account_number=$3)`
+    await pool.query('begin')
+    await pool.query(sql, [custId, a.routing_number, a.account_number])
+    await pool.query('commit')
 }
 
 export function GetPool(conf) {
