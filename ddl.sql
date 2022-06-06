@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS deposit (
 	from_account_number varchar NOT NULL,
 	to_routing_number varchar null,
 	to_account_number varchar NOT NULL,
-	amount float8 NOT NULL,
+	amount numeric NOT NULL,
 	currency varchar(3) NOT NULL,
 	status varchar(20) NOT NULL,
 	remarks text
