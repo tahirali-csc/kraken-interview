@@ -20,6 +20,6 @@ CREATE TABLE IF NOT EXISTS deposit (
 	to_account_number varchar NOT NULL,
 	amount float8 NOT NULL,
 	currency varchar(3) NOT NULL,
-	status varchar(10) NOT NULL,
+	status varchar(20) NOT NULL,
 	remarks text
 );
