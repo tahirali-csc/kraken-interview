@@ -8,7 +8,7 @@ export async function ShowResults(pool) {
 
     let res = await pool.query(sql)
     res.rows.forEach(r => {
-        console.log(`Deposited for ${r.name}: count = ${r.count} sum=${r.sum} ${r.currency}`)
+        console.log(`Deposited for ${r.name}: count=${r.count} sum=${r.sum} ${r.currency}`)
     })
 
     sql = `select round(coalesce(sum(amount),0),2) sum, count(*) count, currency 
