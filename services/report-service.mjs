@@ -17,7 +17,7 @@ export async function ShowResults(pool) {
     group by currency`
     res = await pool.query(sql)
     res.rows.forEach(r => {
-        console.log(`Deposited without known user count = ${r.count} sum=${r.sum} ${r.currency}`)
+        console.log(`Deposited without known user: count=${r.count} sum=${r.sum} ${r.currency}`)
     })
 
     sql = `select round(min(amount),2) min, currency 
