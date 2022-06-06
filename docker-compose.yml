@@ -7,10 +7,11 @@ services:
       - db
     environment:
       DB_HOST: db
-
+      DB_NAME: kraken
+      DB_USER: postgres
+      DB_PASSWORD: password
     volumes:
-      - ./data:/data/
-    # ports:
+      - ./data:/home/app/data
 
   db:
     image: postgres:14.1
@@ -24,7 +25,3 @@ services:
       - postgres_data:/var/lib/postgresql/data/
 volumes:
   postgres_data:
-
-    # volumes:
-    #   data:
-    #     external: true      

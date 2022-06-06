@@ -1,5 +1,4 @@
 FROM node:16.15
-EXPOSE 3000 9229
 
 WORKDIR /home/app
 
